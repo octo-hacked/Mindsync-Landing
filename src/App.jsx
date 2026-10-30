@@ -33,12 +33,13 @@ function Nav() {
       <div className="nav__brand">MindSync</div>
       <div className={`nav__links ${menuOpen ? 'nav__links--open' : ''}`}>
         <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
-        <a href="#problem" onClick={() => setMenuOpen(false)}>Problem</a>
-        <a href="#headset" onClick={() => setMenuOpen(false)}>Headset</a>
+        <a href="#headset" onClick={() => setMenuOpen(false)}>Product</a>
+        <a href="#pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
+        <a href="#safety" onClick={() => setMenuOpen(false)}>Safety</a>
         <a href="#games" onClick={() => setMenuOpen(false)}>Exercises</a>
         <a href="#future" onClick={() => setMenuOpen(false)}>Roadmap</a>
       </div>
-      <button className="nav__cta">Get Early Access</button>
+      <a className="nav__cta" href="#pricing">View Pricing</a>
       <button className="nav__hamburger" onClick={() => setMenuOpen(o => !o)} aria-label="Menu">
         <span /><span /><span />
       </button>
@@ -57,22 +58,20 @@ function Hero() {
           loop
           playsInline
           className="hero__video"
-          poster="/hero-poster.jpg"
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
         <div className="hero__overlay" />
       </div>
       <div className="hero__content">
-        <span className="hero__eyebrow">NEUROTECHNOLOGY · MENTAL WELLNESS</span>
         <h1 className="hero__title">
-          Observe and deal<br />with your mind<br />
-          <em>with MindSync</em>
+          EEG-informed insights<br />for personal wellbeing<br />
+          and <em>clinician-guided care</em>
         </h1>
-        <p className="hero__sub">Real-time neural intelligence for the modern therapy room.</p>
+        <p className="hero__sub">We are exploring EEG-informed tools for personal wellbeing and therapist review. The technology is in development and is not a diagnostic tool.</p>
         <div className="hero__actions">
-          <a href="#about" className="btn btn--primary">Discover More</a>
-          <a href="#headset" className="btn btn--ghost">View Headset</a>
+          <a href="#about" className="btn btn--primary">Our Approach</a>
+          <a href="#pricing" className="btn btn--ghost">Clinic Pricing</a>
         </div>
       </div>
       <div className="hero__scroll">
@@ -80,60 +79,6 @@ function Hero() {
         <span>SCROLL</span>
       </div>
     </section>
-  )
-}
-
-/* ─── EEG HEADSET WATERMARK SVG ─── */
-function EEGWatermark() {
-  return (
-    <svg
-      className="about__watermark"
-      viewBox="0 0 520 380"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      {/* Head outline */}
-      <ellipse cx="260" cy="175" rx="118" ry="138" stroke="currentColor" strokeWidth="1.2" strokeDasharray="4 3" />
-      {/* Crown arc of headset band */}
-      <path d="M152 148 C152 70 368 70 368 148" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      {/* Left arm of headset */}
-      <path d="M152 148 L142 188 Q139 210 148 222" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      {/* Right arm */}
-      <path d="M368 148 L378 188 Q381 210 372 222" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      {/* Left ear cup */}
-      <rect x="128" y="215" width="36" height="52" rx="14" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="146" cy="241" r="10" stroke="currentColor" strokeWidth="1.2" />
-      {/* Right ear cup */}
-      <rect x="356" y="215" width="36" height="52" rx="14" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="374" cy="241" r="10" stroke="currentColor" strokeWidth="1.2" />
-      {/* EEG electrode dots across band */}
-      {[190, 222, 260, 298, 330].map((cx, i) => (
-        <g key={i}>
-          <circle cx={cx} cy={i === 2 ? 68 : i === 1 || i === 3 ? 76 : 90} r="5" stroke="currentColor" strokeWidth="1.4" />
-          <line
-            x1={cx} y1={i === 2 ? 73 : i === 1 || i === 3 ? 81 : 95}
-            x2={cx} y2={i === 2 ? 90 : i === 1 || i === 3 ? 96 : 108}
-            stroke="currentColor" strokeWidth="1" strokeDasharray="2 2"
-          />
-        </g>
-      ))}
-      {/* Forehead electrode strip */}
-      <path d="M198 170 Q260 158 322 170" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" />
-      {[215, 240, 260, 280, 305].map((cx, i) => (
-        <circle key={`fe-${i}`} cx={cx} cy={i === 2 ? 160 : i === 1 || i === 3 ? 163 : 167} r="3.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-      ))}
-      {/* EEG wave lines inside head */}
-      <path d="M186 230 L200 230 L206 214 L214 248 L220 224 L228 236 L234 230 L248 230"
-        stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M272 230 L286 230 L292 214 L300 248 L306 224 L314 236 L320 230 L334 230"
-        stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Centre divider line */}
-      <line x1="260" y1="214" x2="260" y2="248" stroke="currentColor" strokeWidth="0.8" strokeDasharray="2 2" />
-      {/* Subtle signal arcs */}
-      <path d="M230 290 Q260 278 290 290" stroke="currentColor" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.6" />
-      <path d="M210 305 Q260 290 310 305" stroke="currentColor" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.4" />
-    </svg>
   )
 }
 
@@ -155,13 +100,13 @@ function About() {
             
             <div className="about__content">
               <p className="about__para">
-                At MindSync, we leverage modern technology to better understand the human mind and how it works. Our mission is to decode brain activity and transform that data into meaningful insights that can help address the growing global mental health crisis.
+                MindSync is developing an EEG-based decision-support workflow for therapists. Our current work explores how brain-signal data can be processed into structured information for clinician review.
               </p>
               <p className="about__para">
-                Our mission is to make mental health diagnosis more objective,
-                therapy more adaptive, and recovery more measurable. We believe
-                that understanding the brain should not be a mystery — but a
-                clear, guided process for every clinician.
+                The goal is to complement a clinician's expertise, not replace
+                conversation, assessment, or professional judgment. The
+                prototype and its potential clinical usefulness are still in
+                research and validation.
               </p>
             </div>
           </div>
@@ -170,7 +115,7 @@ function About() {
           <div className="about__right">
              <div className="about__image-wrap">
                 <div className="about__image-inner">
-                   <img src="/MindSync Logo.png" alt="" />
+                   <img src="/icon.png" alt="" />
                    <div className="about__overlay-text">DECIPHERING THE NEURAL CODE</div>
                 </div>
                 <div className="about__decorative-box" />
@@ -188,18 +133,18 @@ function Problem() {
   const cards = [
     {
       n: '01',
-      t: 'No Objective Measurement',
-      d: 'Mental health diagnosis relies almost entirely on subjective self-reporting, leading to misdiagnoses, delayed care, and missed crises.',
+      t: 'A Complex Clinical Picture',
+      d: 'Therapists combine patient-reported experiences, observation, and clinical expertise. MindSync is exploring whether EEG-derived signals can provide an additional perspective.',
     },
     {
       n: '02',
-      t: 'Treatment Is Guesswork',
-      d: 'Therapists receive no real-time feedback on how interventions affect brain state, making plans slow to adapt and hard to personalise.',
+      t: 'Signals Need Context',
+      d: 'Brain-signal measurements do not explain patient experience on their own. Any estimates need careful interpretation by a trained clinician.',
     },
     {
       n: '03',
-      t: 'The Stigma Barrier',
-      d: 'Patients avoid clinical environments. Without accessible monitoring tools, early deterioration goes unnoticed until a crisis emerges.',
+      t: 'Tools Should Support Care',
+      d: 'New technology should fit into a trusted therapeutic relationship and support clinician-led care—not make decisions or diagnoses for people.',
     },
   ]
 
@@ -208,7 +153,7 @@ function Problem() {
       <div className="container">
         <Shuffle {...LABEL_SHUFFLE} text="THE PROBLEM" className="section__label" textAlign="center" />
         <h2 className="section__title section__title--center">
-          Mental health care is operating blind
+          Exploring another perspective on mental wellness
         </h2>
         <div className="problem__grid">
           {cards.map(c => (
@@ -222,10 +167,10 @@ function Problem() {
         <div className="solution">
           <div className="solution__label">OUR SOLUTION</div>
           <p className="solution__text">
-            MindSync bridges the gap between subjective experience and objective
-            data — giving clinicians a real-time neural window into their patients'
-            minds through our non-invasive, comfortable headset technology and
-            AI-powered analytics platform.
+            We are developing a wearable EEG and software workflow to turn
+            recorded signals into structured estimates and therapist-readable
+            summaries. This is an early research effort: outputs are not
+            validated diagnoses and are intended for clinician review only.
           </p>
         </div>
       </div>
@@ -241,31 +186,31 @@ function Headset() {
         <div className="headset__image-wrap">
           <img
             src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80"
-            alt="Therapist using MindSync headset to analyse patient brain activity"
+            alt="Illustrative image of a person wearing an EEG headset; this is not the MindSync prototype"
             className="headset__img"
           />
           <div className="headset__img-badge">
-            MINDSYNC HEADSET V1
+            ILLUSTRATIVE EEG IMAGE
           </div>
         </div>
         <div className="headset__content">
           <Shuffle {...LABEL_SHUFFLE} text="THE DEVICE" className="section__label" textAlign="left" />
           <h2 className="section__title">
-            Precision neural reading,<br />in a comfortable form
+            From EEG signals<br />to therapist review
           </h2>
           <p>
-            The MindSync Headset is a clinical-grade EEG device designed for
-            therapy rooms. It reads brainwave patterns across 16 channels,
-            transmitting live data directly to the therapist's dashboard — all
-            while the patient sits in comfort.
+            Our current proof of concept uses a 4-channel EEG setup. The proposed
+            workflow combines signal processing and machine-learning
+            classifiers to estimate states such as stress, focus, and calm.
+            Those estimates are not yet validated.
           </p>
           <ul className="headset__features">
             {[
-              '16-channel EEG with medical-grade dry sensors',
-              'Real-time neural signal visualisation dashboard',
-              'AI-powered cognitive state & stress detection',
-              'HIPAA-compliant, end-to-end encrypted pipeline',
-              'Wireless, 8-hour continuous battery life',
+              'Current R&D prototype: 4-channel EEG',
+              'Signal processing and CNN/RNN classifiers in development',
+              'Planned structured estimates: stress, focus, and calm',
+              'LLM summaries use structured estimates, not raw EEG',
+              'For therapist review; not a diagnosis',
             ].map(f => (
               <li key={f}>
                 <span className="feature__dot" />
@@ -274,6 +219,107 @@ function Headset() {
             ))}
           </ul>
         </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─── PRICING ─── */
+function Pricing() {
+  return (
+    <section className="section pricing" id="pricing">
+      <div className="container">
+        <Shuffle {...LABEL_SHUFFLE} text="CLINICS FIRST" className="section__label" textAlign="center" />
+        <h2 className="section__title section__title--center">
+          Proposed clinic pricing
+        </h2>
+        <p className="section__sub">
+          A clinic-led model, with the consumer version planned only after
+          clinical validation.
+        </p>
+        <div className="pricing__grid">
+          <article className="pricing-card pricing-card--featured">
+            <span className="pricing-card__eyebrow">YEAR 1 · CLINICAL PACKAGE</span>
+            <h3>MindSync Clinical Solution</h3>
+            <p className="pricing-card__price">₹80,000 <span>one-time</span></p>
+            <ul>
+              <li>One MindSync EEG headset</li>
+              <li>Logistics and setup</li>
+              <li>Clinical onboarding and doctor training</li>
+              <li>One-year premium app subscription with dashboard and planned AI summaries</li>
+            </ul>
+          </article>
+          <article className="pricing-card">
+            <span className="pricing-card__eyebrow">YEAR 2+ · PLANNED RENEWAL</span>
+            <h3>Software subscription</h3>
+            <p className="pricing-card__price">₹12,000 <span>per year</span></p>
+            <ul>
+              <li>Continued dashboard access</li>
+              <li>Updated models as they are developed and validated</li>
+              <li>Planned clinical summaries for therapist review</li>
+            </ul>
+          </article>
+          <article className="pricing-card pricing-card--future">
+            <span className="pricing-card__eyebrow">FUTURE · AFTER VALIDATION</span>
+            <h3>Planned consumer version</h3>
+            <p className="pricing-card__price">₹80,000 <span>headset</span></p>
+            <p className="pricing-card__detail">Plus a planned ₹1,000/month subscription.</p>
+            <p className="pricing-card__note">Not currently available. Planned only after clinical validation.</p>
+          </article>
+        </div>
+        <p className="pricing__note">
+          Pricing is proposed in the pitch deck and may change. The consumer
+          version is a future plan, not an available product.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+/* ─── REGULATORY & PRIVACY ─── */
+function Safety() {
+  return (
+    <section className="section safety" id="safety">
+      <div className="container">
+        <Shuffle {...LABEL_SHUFFLE} text="SAFETY & PRIVACY" className="section__label" textAlign="center" />
+        <h2 className="section__title section__title--center">
+          Careful by design, validation first
+        </h2>
+        <div className="safety__grid">
+          <article className="safety-card">
+            <span className="safety-card__eyebrow">INTENDED INITIAL POSITIONING</span>
+            <h3>Wellness and decision support</h3>
+            <p>
+              MindSync is being developed to provide information that may
+              support a therapist's review. It is not intended to diagnose a
+              condition or replace professional judgment.
+            </p>
+          </article>
+          <article className="safety-card">
+            <span className="safety-card__eyebrow">REGULATORY PATHWAY · PLANNED</span>
+            <h3>Evidence before clinical claims</h3>
+            <p>
+              After feasibility work, the team plans to pursue applicable
+              CDSCO (India) and FDA (US) clearances for specific clinical
+              claims. No such clearance is claimed here.
+            </p>
+          </article>
+          <article className="safety-card">
+            <span className="safety-card__eyebrow">PRIVACY APPROACH · IN DEVELOPMENT</span>
+            <h3>Consent and data protection</h3>
+            <p>
+              The deck describes a DPDP Act-aligned approach: explicit consent
+              for active sessions, encryption across device and cloud, and
+              consented, anonymized data for model improvement. These
+              safeguards must be implemented and verified before being
+              represented as operational.
+            </p>
+          </article>
+        </div>
+        <p className="safety__disclaimer">
+          EEG state estimates and summaries are in development and require
+          validation. They are not diagnoses or a substitute for clinical care.
+        </p>
       </div>
     </section>
   )
@@ -444,24 +490,24 @@ function Games() {
 function Future() {
   const goals = [
     {
-      year: '2025',
-      title: 'Clinical Expansion',
-      desc: 'Partner with 500+ therapy clinics across India, bringing MindSync to underserved mental health infrastructure and tier-2 cities.',
+      year: 'Q4 2026',
+      title: 'Prototype refinement',
+      desc: 'Refine the EEG proof of concept and build a minimum viable therapist dashboard.',
     },
     {
-      year: '2026',
-      title: 'AI Diagnostic Engine',
-      desc: 'Launch our next-generation AI capable of detecting early markers of depression, anxiety disorders, and PTSD directly from neural patterns.',
+      year: 'Q2 2027',
+      title: 'Feasibility study',
+      desc: 'Plan a 15-patient feasibility study and initial model training. This study is intended to assess feasibility, not clinical efficacy.',
     },
     {
-      year: '2027',
-      title: 'Consumer Wellness Band',
-      desc: 'Release a consumer version of the MindSync wearable for at-home mental wellness monitoring, integrated with major telehealth platforms.',
+      year: 'Q4 2027',
+      title: 'Clinic pilot packages',
+      desc: 'Prepare clinic pilot packages, subject to feasibility results and applicable ethics and regulatory requirements.',
     },
     {
       year: '2028',
-      title: 'Global Research Network',
-      desc: 'Establish an open, anonymised neural dataset to advance global research in cognitive neuroscience and accelerate breakthroughs in mental health.',
+      title: 'Consumer version',
+      desc: 'Explore a consumer version after validation, with dry-electrode research continuing. Availability depends on evidence and applicable requirements.',
     },
   ]
 
@@ -499,7 +545,7 @@ function Footer() {
       <div className="footer__inner">
         <div className="footer__brand">MindSync</div>
         <p className="footer__copy">
-          © 2025 MindSync Technologies Pvt. Ltd. · All rights reserved.
+          © 2026 MindSync Technologies Pvt. Ltd. · All rights reserved.
         </p>
         <p className="footer__tagline">
           Bridging minds and science.
@@ -518,6 +564,8 @@ export default function App() {
       <About />
       <Problem />
       <Headset />
+      <Pricing />
+      <Safety />
       <Games />
       <Future />
       <Footer />

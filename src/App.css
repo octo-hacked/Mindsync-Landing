@@ -45,6 +45,8 @@
 .nav__links a:hover { color: var(--white); }
 
 .nav__cta {
+  display: inline-flex;
+  align-items: center;
   font-size: 12px;
   letter-spacing: 0.12em;
   font-weight: 500;
@@ -785,6 +787,174 @@
 @media (max-width: 600px) {
   .timeline__item { grid-template-columns: 52px 24px 1fr; gap: 0 16px; }
   .timeline__year { font-size: 12px; }
+}
+
+/* ══════════════════════════════════════════════
+   PRICING
+══════════════════════════════════════════════ */
+.pricing {
+  background: var(--grey-6);
+  border-bottom: 1px solid var(--grey-5);
+}
+
+.pricing__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.pricing-card {
+  display: flex;
+  flex-direction: column;
+  padding: 36px 30px;
+  background: var(--white);
+  border: 1px solid var(--grey-5);
+}
+
+.pricing-card--featured {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
+}
+
+.pricing-card__eyebrow,
+.safety-card__eyebrow {
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: var(--grey-4);
+}
+
+.pricing-card--featured .pricing-card__eyebrow {
+  color: rgba(255,255,255,0.55);
+}
+
+.pricing-card h3 {
+  margin: 20px 0 16px;
+  font-size: 22px;
+}
+
+.pricing-card--featured h3,
+.pricing-card--featured .pricing-card__price {
+  color: var(--white);
+}
+
+.pricing-card__price {
+  margin-bottom: 24px;
+  color: var(--black);
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.15;
+  font-weight: 500;
+}
+
+.pricing-card__price span {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  font-weight: 400;
+}
+
+.pricing-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.pricing-card li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--grey-3);
+}
+
+.pricing-card--featured li {
+  color: rgba(255,255,255,0.78);
+}
+
+.pricing-card li::before {
+  position: absolute;
+  left: 0;
+  content: '•';
+  color: var(--grey-4);
+}
+
+.pricing-card__detail {
+  margin-bottom: 14px;
+  font-size: 15px;
+}
+
+.pricing-card__note,
+.pricing__note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--grey-4);
+}
+
+.pricing-card__note {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.pricing__note {
+  margin: 24px auto 0;
+  max-width: 720px;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════
+   SAFETY & REGULATORY
+══════════════════════════════════════════════ */
+.safety {
+  background: var(--white);
+  border-bottom: 1px solid var(--grey-6);
+}
+
+.safety__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.safety-card {
+  padding: 32px 28px;
+  background: var(--grey-6);
+  border: 1px solid var(--grey-5);
+}
+
+.safety-card h3 {
+  margin: 18px 0 12px;
+  font-size: 21px;
+}
+
+.safety-card p {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.safety__disclaimer {
+  max-width: 760px;
+  margin: 28px auto 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--grey-4);
+}
+
+@media (max-width: 900px) {
+  .pricing__grid,
+  .safety__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-card {
+    padding: 32px 28px;
+  }
 }
 
 

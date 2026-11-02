@@ -1836,16 +1836,23 @@ a:not(.btn):not(.nav__cta):not(.mobile-contact-bar a) {
   }
 
   .workflow__signals--processed {
-    grid-template-columns: minmax(0, 1.35fr) minmax(92px, 0.8fr);
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
 
-  .workflow__traces,
   .workflow__signals {
-    min-height: 216px;
+    min-height: 0;
   }
 
-  .workflow__bands { gap: 12px; }
+  .workflow__traces {
+    min-height: 180px;
+  }
+
+  .workflow__bands {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+  }
+
   .workflow__band { gap: 4px; }
   .workflow__estimate { grid-template-columns: 62px minmax(0, 1fr) 42px; gap: 8px; }
   .workflow__tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }

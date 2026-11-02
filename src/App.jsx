@@ -452,9 +452,9 @@ function WorkflowWalkthrough() {
   const [inViewport, setInViewport] = useState(false)
   const [tabVisible, setTabVisible] = useState(() => !document.hidden)
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [canPauseForInteraction, setCanPauseForInteraction] = useState(() => window.matchMedia('(hover: hover) and (pointer: fine)').matches)
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
-  const [manualPause, setManualPause] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
   const [videoFailed, setVideoFailed] = useState(false)
   const panelRef = useRef(null)
@@ -473,18 +473,22 @@ function WorkflowWalkthrough() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
     const updatePreference = () => setReducedMotion(mediaQuery.matches)
+    const updatePointer = () => setCanPauseForInteraction(pointerQuery.matches)
     const updateVisibility = () => setTabVisible(!document.hidden)
     mediaQuery.addEventListener('change', updatePreference)
+    pointerQuery.addEventListener('change', updatePointer)
     document.addEventListener('visibilitychange', updateVisibility)
     return () => {
       mediaQuery.removeEventListener('change', updatePreference)
+      pointerQuery.removeEventListener('change', updatePointer)
       document.removeEventListener('visibilitychange', updateVisibility)
     }
   }, [])
 
-  const animationAllowed = inViewport && tabVisible && !reducedMotion && !isHovered && !hasFocus && !videoLoaded
-  const autoplayAllowed = animationAllowed && !manualPause
+  const pauseForInteraction = canPauseForInteraction && (isHovered || hasFocus)
+  const animationAllowed = inViewport && tabVisible && !reducedMotion && !pauseForInteraction && !videoLoaded
 
   useEffect(() => {
     if (!animationAllowed) return undefined
@@ -502,7 +506,7 @@ function WorkflowWalkthrough() {
       }
 
       if (progress === 1) {
-        if (autoplayAllowed) {
+        if (animationAllowed) {
           progressRef.current = 0
           setAnimationProgress(0)
           setActiveStep(current => (current + 1) % WORKFLOW_STEPS.length)
@@ -514,17 +518,12 @@ function WorkflowWalkthrough() {
 
     frame = window.requestAnimationFrame(animate)
     return () => window.cancelAnimationFrame(frame)
-  }, [activeStep, animationAllowed, autoplayAllowed])
+  }, [activeStep, animationAllowed])
 
   function selectStep(step) {
-    progressRef.current = 1
-    setAnimationProgress(1)
+    progressRef.current = 0
+    setAnimationProgress(0)
     setActiveStep(step)
-    setManualPause(true)
-  }
-
-  function handlePointerDown(event) {
-    if (event.pointerType === 'touch') setManualPause(true)
   }
 
   function handleBlur(event) {
@@ -540,7 +539,6 @@ function WorkflowWalkthrough() {
           className="demo__figure"
           onPointerEnter={() => setIsHovered(true)}
           onPointerLeave={() => setIsHovered(false)}
-          onPointerDown={handlePointerDown}
           onFocusCapture={() => setHasFocus(true)}
           onBlurCapture={handleBlur}
         >

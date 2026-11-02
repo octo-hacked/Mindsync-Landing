@@ -1,0 +1,46 @@
+:root {
+  --ink: #2B2A35;
+  --ink-deep: #1E1D26;
+  --mist: #E8EAF2;
+  --bg-soft: #F6F7FB;
+  --white: #FFFFFF;
+  --line: #D5D9E8;
+  --slate: #55556A;
+  --on-dark-muted: #B8BCCB;
+  --gold: #C9A24B;
+  --bronze: #7D6230;
+  --gold-tint: #EFE6D0;
+  --slate-blue: #5B6B8C;
+  --teal: #3E7C6B;
+  --error: #B3463F;
+
+  --text: var(--ink);
+  --text-muted: var(--slate);
+  --text-on-dark: var(--white);
+  --text-on-dark-muted: var(--on-dark-muted);
+  --text-soft-on-dark: var(--mist);
+  --surface: var(--white);
+  --surface-alt: var(--bg-soft);
+  --surface-panel: var(--mist);
+  --surface-dark: var(--ink);
+  --surface-deep: var(--ink-deep);
+  --accent-on-light: var(--bronze);
+  --accent-on-dark: var(--gold);
+  --accent-status: var(--teal);
+  --status-error: var(--error);
+  --status-tint: var(--gold-tint);
+  --connector: var(--slate-blue);
+  --border: var(--line);
+  --focus: var(--ink);
+  --focus-on-dark: var(--gold);
+
+  --nav-surface: color-mix(in srgb, var(--surface-deep) 90%, transparent);
+  --nav-menu-surface: color-mix(in srgb, var(--surface-deep) 96%, transparent);
+  --mobile-bar-surface: color-mix(in srgb, var(--surface-deep) 97%, transparent);
+  --hover-primary-light: color-mix(in srgb, var(--surface-dark) 93%, var(--surface));
+  --active-primary-light: color-mix(in srgb, var(--surface-dark) 80%, var(--surface-deep));
+  --hover-primary-dark: color-mix(in srgb, var(--accent-on-dark) 92%, var(--surface));
+  --active-primary-dark: color-mix(in srgb, var(--accent-on-dark) 90%, var(--surface-deep));
+  --shadow-card: 0 8px 32px color-mix(in srgb, var(--surface-deep) 7%, transparent);
+  --shadow-video: 0 16px 40px color-mix(in srgb, var(--surface-deep) 12%, transparent);
+}

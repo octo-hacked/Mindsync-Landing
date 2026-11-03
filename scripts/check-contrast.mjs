@@ -4,7 +4,6 @@ import { dirname, resolve } from 'node:path'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const tokenSource = readFileSync(resolve(root, 'public/design-tokens.css'), 'utf8')
-const appSource = readFileSync(resolve(root, 'src/App.jsx'), 'utf8')
 const tokens = new Map(
   [...tokenSource.matchAll(/--([\w-]+):\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]),
 )
@@ -76,7 +75,12 @@ const pairs = [
   ['accent-on-light', 'surface', 14, 'Bronze labels on white'],
   ['accent-on-light', 'surface-alt', 14, 'Bronze labels on soft background'],
   ['accent-on-light', 'surface-panel', 14, 'Bronze labels on mist'],
+  ['accent-on-light', 'surface-alt', 16, 'Roadmap dates on soft background'],
+  ['accent-on-light', 'surface-alt', 14, 'Dashed consumer-card eyebrow on soft background'],
+  ['text-muted', 'surface-alt', 14, 'Dashed consumer-card note on soft background'],
+  ['text-on-dark-muted', 'surface-deep', 14, 'Footer text on deep background'],
   ['text', 'status-tint', 14, 'Text on gold tint'],
+  ['text-muted', 'status-tint', 16, 'Pipeline detail on selected-stage tint'],
   ['accent-on-light', 'status-tint', 14, 'Bronze on gold tint pills'],
   ['text', 'accent-on-dark', 16, 'Ink on gold CTA'],
   ['text-on-dark', 'accent-status', 14, 'White on teal prototype pill'],
@@ -111,33 +115,9 @@ for (const [foregroundName, backgroundName, fontSize, label, backdropName] of pa
   if (contrast < minimum) failures.push(result)
 }
 
-const traceOpacityMatch = appSource.match(/context\.globalAlpha\s*=\s*([0-9.]+)\s*\+\s*trace\s*\*\s*([0-9.]+)/)
-if (!traceOpacityMatch) throw new Error('Unable to read the hero waveform trace opacity.')
-const maxTraceOpacity = Number(traceOpacityMatch[1]) + 3 * Number(traceOpacityMatch[2])
-if (maxTraceOpacity < 0.25 || maxTraceOpacity > 0.3) {
-  throw new Error(`Hero waveform opacity ${maxTraceOpacity} is outside the requested 25–30% range.`)
-}
-
-const waveformBackground = composite(
-  { ...resolveColor('accent-on-dark'), alpha: maxTraceOpacity },
-  resolveColor('surface-dark'),
-)
-const waveformTextPairs = [
-  ['text-on-dark', 'Hero headline over maximum waveform trace'],
-  ['text-soft-on-dark', 'Hero subheading over maximum waveform trace'],
-  ['text-on-dark-muted', 'Hero disclaimer over maximum waveform trace'],
-]
-
-for (const [foregroundName, label] of waveformTextPairs) {
-  const contrast = ratio(resolveColor(foregroundName), waveformBackground)
-  const result = `${contrast.toFixed(2)}:1 ${contrast >= 4.5 ? 'PASS' : 'FAIL'} — ${label}`
-  console.log(result)
-  if (contrast < 4.5) failures.push(result)
-}
-
 if (failures.length) {
   console.error(`\n${failures.length} text/background pair(s) failed WCAG AA.`)
   process.exitCode = 1
 } else {
-  console.log(`\nAll ${pairs.length + waveformTextPairs.length} used text/background pairs meet WCAG AA.`)
+  console.log(`\nAll ${pairs.length} used text/background pairs meet WCAG AA.`)
 }

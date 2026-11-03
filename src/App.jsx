@@ -7,10 +7,6 @@ const CONTACT_DETAILS = {
 }
 
 const CONFIG = {
-  demo: {
-    video: '', // TODO: Set a reviewed video path and provide its poster to replace the walkthrough.
-    poster: '/assets/demo-poster.webp',
-  },
   showEvidenceHeading: false, // TODO: Restore "Evidence before claims" after verified results or study data are available.
 }
 
@@ -24,10 +20,10 @@ const PROGRESS_ITEMS = [
 const PROGRESS_STATUS_ITEMS = [
   {
     id: 'prototype',
-    title: '4-channel EEG R&D prototype',
-    detail: 'Four-channel proof of concept.',
-    status: 'current',
-    statusLabel: 'Current',
+    title: 'EEG headset design',
+    detail: 'Four-channel design render.',
+    status: 'in-development',
+    statusLabel: 'design stage',
   },
   {
     id: 'classifiers',
@@ -53,23 +49,23 @@ const PROGRESS_STATUS_ITEMS = [
 ]
 
 const TEAM_MEMBERS = [
-  // TODO: Add approved headshots at these paths; initials appear until each image loads.
   { name: 'Hemendra Harsh', role: 'Electronics, design and team lead', photo: '/assets/team/hemendra.webp', initials: 'HH' },
   { name: 'Piyush Bajpai', role: 'Software and AI model training', photo: '/assets/team/piyush.webp', initials: 'PB' },
-  { name: 'Clinical Advisory', role: 'Advisory board in formation', initials: 'CA' },
+  { name: 'Clinical advisory', role: 'Board in formation', initials: 'CA' },
 ]
 
 const PROTOTYPE_DIAGRAM = '/assets/prototype-diagram.webp'
 
 const PIPELINE_STAGES = [
-  // TODO: Confirm which pipeline stages qualify as working prototypes before launch.
-  { title: 'EEG headset', detail: '4-channel prototype', inDevelopment: false, workingPrototype: true },
-  { title: 'Signal processing', detail: 'Recorded signal preparation', inDevelopment: true },
-  { title: 'CNN/RNN classifiers', detail: 'Model development', inDevelopment: true },
-  { title: 'Structured estimates', detail: 'Stress, focus, and calm', inDevelopment: true },
-  { title: 'LLM summary', detail: 'Uses structured estimates, not raw EEG', inDevelopment: true },
-  { title: 'Clinician review', detail: 'For therapist consideration', inDevelopment: false },
+  { title: 'EEG headset', detail: 'Four-channel design render', status: 'design stage' },
+  { title: 'Signal processing', detail: 'Signal preparation methods', status: 'In development' },
+  { title: 'CNN/RNN classifiers', detail: 'Model development', status: 'In development' },
+  { title: 'Structured estimates', detail: 'Stress, focus, and calm', status: 'In development' },
+  { title: 'LLM summary', detail: 'Work focuses on structured estimates, not raw EEG', status: 'In development' },
+  { title: 'Clinician review', detail: 'For therapist consideration', status: 'Planned' },
 ]
+
+const PIPELINE_VISUAL_STEPS = [0, 1, 1, 2, 3, 3]
 
 function SectionLabel({ children, align = 'center' }) {
   return <p className={`section__label section__label--${align}`}>{children}</p>
@@ -112,7 +108,6 @@ function buildMailto(values = {}, attribution = {}) {
   const body = [
     `Name: ${values.name || ''}`,
     `Email: ${values.email || ''}`,
-    `Organisation: ${values.organisation || ''}`,
     `I am a: ${values.role || ''}`,
     `Message: ${values.message || ''}`,
     '',
@@ -124,139 +119,26 @@ function buildMailto(values = {}, attribution = {}) {
   return `mailto:${encodeURIComponent(CONTACT_DETAILS.email)}?${query.toString()}`
 }
 
-function EEGWaveform() {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const context = canvas?.getContext('2d')
-    if (!canvas || !context) return undefined
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let isVisible = false
-    let frame = 0
-    let lastDraw = 0
-    let width = 0
-    let height = 0
-    let pixelRatio = 1
-    canvas.style.color = 'var(--accent-on-dark)'
-    const traceColor = getComputedStyle(canvas).color
-
-    const draw = time => {
-      context.clearRect(0, 0, width, height)
-      for (let trace = 0; trace < 4; trace += 1) {
-        const baseline = height * (0.32 + trace * 0.12)
-        const amplitude = height * 0.025
-        const phase = reducedMotion.matches ? 0 : time * 0.00045 + trace * 1.15
-        context.beginPath()
-        context.lineWidth = 1
-        context.strokeStyle = traceColor
-        for (let x = 0; x <= width; x += 5) {
-          const wave = Math.sin(x * 0.012 + phase) + Math.sin(x * 0.004 - phase * 0.55) * 0.25
-          const y = baseline + wave * amplitude
-          if (x === 0) context.moveTo(x, y)
-          else context.lineTo(x, y)
-        }
-        context.globalAlpha = 0.25 + trace * 0.006
-        context.stroke()
-        context.globalAlpha = 1
-      }
-    }
-
-    const resize = () => {
-      const bounds = canvas.getBoundingClientRect()
-      pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25)
-      width = bounds.width
-      height = bounds.height
-      canvas.width = Math.max(1, Math.round(width * pixelRatio))
-      canvas.height = Math.max(1, Math.round(height * pixelRatio))
-      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
-      draw(0)
-    }
-
-    const animate = time => {
-      if (!isVisible || reducedMotion.matches || document.hidden) return
-      if (time - lastDraw >= 40) {
-        draw(time)
-        lastDraw = time
-      }
-      frame = window.requestAnimationFrame(animate)
-    }
-
-    const refreshAnimation = () => {
-      window.cancelAnimationFrame(frame)
-      draw(0)
-      if (isVisible && !reducedMotion.matches && !document.hidden) {
-        frame = window.requestAnimationFrame(animate)
-      }
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting
-      refreshAnimation()
-    })
-    observer.observe(canvas)
-    window.addEventListener('resize', resize)
-    document.addEventListener('visibilitychange', refreshAnimation)
-    reducedMotion.addEventListener('change', refreshAnimation)
-    resize()
-
-    return () => {
-      observer.disconnect()
-      window.cancelAnimationFrame(frame)
-      window.removeEventListener('resize', resize)
-      document.removeEventListener('visibilitychange', refreshAnimation)
-      reducedMotion.removeEventListener('change', refreshAnimation)
-    }
-  }, [])
-
-  return <canvas ref={canvasRef} className="hero__waveform" aria-hidden="true" />
-}
-
-function OptionalImage({ src, modernSrc, alt, className = '', width, height }) {
-  const [failed, setFailed] = useState(false)
-  const [useFallback, setUseFallback] = useState(false)
-
-  if (failed || !src) return null
-
-  return (
-    <picture>
-      {modernSrc && !useFallback && <source srcSet={modernSrc} type="image/webp" />}
-      <img
-        src={src}
-        alt={alt}
-        className={className}
-        width={width}
-        height={height}
-        loading="lazy"
-        decoding="async"
-        onError={() => {
-          if (modernSrc && !useFallback) setUseFallback(true)
-          else setFailed(true)
-        }}
-      />
-    </picture>
-  )
-}
-
 function TeamAvatar({ member }) {
   const [failed, setFailed] = useState(false)
 
-  if (!member.photo || failed) {
-    return <div className="team-card__initials" aria-hidden="true">{member.initials}</div>
-  }
-
   return (
-    <img
-      className="team-card__photo"
-      src={member.photo}
-      alt={`${member.name}, ${member.role}`}
-      width="800"
-      height="600"
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-    />
+    <div className="team-card__avatar-row">
+      {member.photo && !failed
+        ? (
+            <img
+              className="team-card__avatar"
+              src={member.photo}
+              alt={`${member.name}, ${member.role}`}
+              width="96"
+              height="96"
+              loading="lazy"
+              decoding="async"
+              onError={() => setFailed(true)}
+            />
+          )
+        : <div className="team-card__avatar team-card__avatar--fallback" aria-hidden="true">{member.initials}</div>}
+    </div>
   )
 }
 /* ─── NAV ─── */
@@ -311,13 +193,22 @@ function Nav() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!menuOpen) return undefined
+
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [menuOpen])
+
   return (
-    <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
+    <nav className={`nav ${scrolled ? 'nav--scrolled' : ''}`} aria-label="Primary">
       <div className="nav__brand">MindSync</div>
       <div id="primary-navigation" className={`nav__links ${menuOpen ? 'nav__links--open' : ''}`}>
-        <a href="#demo" aria-current={activeSection === 'demo' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>Workflow</a>
+        <a href="#demo" aria-current={activeSection === 'demo' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>How it works</a>
         <a href="#about" aria-current={activeSection === 'about' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>About</a>
-        <a href="#headset" aria-current={activeSection === 'headset' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>Pipeline</a>
         {hasProgressContent() && <a href="#progress" aria-current={activeSection === 'progress' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>Progress</a>}
         <a href="#future" aria-current={activeSection === 'future' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>Roadmap</a>
         <a href="#safety" aria-current={activeSection === 'safety' ? 'true' : undefined} onClick={() => setMenuOpen(false)}>Safety</a>
@@ -333,6 +224,7 @@ function Nav() {
       </a>
       <button
         className="nav__hamburger"
+        type="button"
         onClick={() => setMenuOpen(open => !open)}
         aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-expanded={menuOpen}
@@ -346,36 +238,61 @@ function Nav() {
 
 /* ─── HERO ─── */
 function Hero() {
+  const hardwareStatus = PROGRESS_STATUS_ITEMS.find(item => item.id === 'prototype')
+
   return (
     <section className="hero" id="hero" aria-labelledby="hero-title">
-      <div className="hero__background">
-        <EEGWaveform />
-      </div>
       <div className="hero__content">
-        <h1 className="hero__title" id="hero-title">EEG insights, reviewed by clinicians.</h1>
-        <p className="hero__sub">A wearable EEG and AI workflow for personal wellbeing and clinician-guided care.</p>
-        <p className="hero__disclaimer">Research prototype. Not a diagnostic tool.</p>
-        <div className="hero__actions">
-          <a href="#contact" className="btn btn--primary" onClick={() => trackEvent('contact_open')}>Talk to us</a>
-          <a href="#demo" className="btn btn--ghost">See how it works</a>
+        <div className="hero__copy">
+          <h1 className="hero__title" id="hero-title">We’re building a wearable EEG and AI workflow for therapist review.</h1>
+          <p className="hero__sub">Our work focuses on organizing EEG signals into structured summaries for therapists to consider.</p>
+          {hardwareStatus && (
+            <p className="hero__status">
+              <span className="hero__status-label">{hardwareStatus.statusLabel}</span>
+              {hardwareStatus.title}
+            </p>
+          )}
+          <p className="hero__disclaimer">Research prototype. Not a diagnostic tool.</p>
+          <div className="hero__actions">
+            <a href="#contact" className="btn btn--primary" onClick={() => trackEvent('contact_open')}>Talk to us</a>
+            <a href="#demo" className="btn btn--ghost">See how it works</a>
+          </div>
         </div>
+        <figure className="hero__render-wrap">
+          <span className="design-render-badge">Design render</span>
+          <img
+            src="/assets/prototype-headband.webp"
+            alt="Design render of a BioAmp four-channel EEG headband, not a photograph of a working device"
+            className="hero__render"
+            width="1000"
+            height="697"
+            fetchPriority="high"
+          />
+        </figure>
       </div>
     </section>
   )
 }
 
-const WORKFLOW_STEPS = ['Capture', 'Process', 'Estimate', 'Summarize']
 const SUMMARY_TEXT = 'Elevated estimated cognitive load.'
 
 function tracePath(channel, progress, cleaned) {
+  const profiles = [
+    { amplitude: 7, frequency: 0.15, secondaryAmplitude: 3.2, noise: 0.9 },
+    { amplitude: 12, frequency: 0.21, secondaryAmplitude: 2.4, noise: 1.4 },
+    { amplitude: 9, frequency: 0.13, secondaryAmplitude: 4, noise: 1.1 },
+    { amplitude: 15, frequency: 0.25, secondaryAmplitude: 2.8, noise: 1.6 },
+  ]
+  const profile = profiles[channel]
   const baseline = 52 + channel * 74
   const points = []
   for (let index = 0; index <= 100; index += 1) {
     const x = 68 + index * 5.55
-    const phase = index * 0.19 + channel * 1.17 + progress * Math.PI * 2
-    let wave = Math.sin(phase) * 9 + Math.sin(index * 0.067 + channel) * 4
+    const phase = index * profile.frequency + channel * 1.17 + progress * Math.PI * 2
+    let wave = Math.sin(phase) * profile.amplitude
+      + Math.sin(index * (0.055 + channel * 0.009) + channel) * profile.secondaryAmplitude
     if (!cleaned) {
-      wave += Math.sin(index * 1.7 + channel * 3 + progress * 16) * 1.8
+      wave += Math.sin(index * (0.71 + channel * 0.08) + channel * 3 + progress * 16) * profile.noise
       const spikePosition = (channel * 19 + Math.floor(progress * 100)) % 83 + 8
       const spikeDistance = Math.abs(index - spikePosition)
       if (spikeDistance < 2) wave += (2 - spikeDistance) * (channel % 2 ? -17 : 17)
@@ -392,7 +309,12 @@ function WorkflowStep({ step, progress, reducedMotion }) {
     const cleaned = step === 1
     return (
       <div className={`workflow__signals ${cleaned ? 'workflow__signals--processed' : ''}`}>
-        <svg className="workflow__traces" viewBox="0 0 640 320" aria-hidden="true">
+        <svg
+          className="workflow__traces"
+          viewBox="0 0 640 320"
+          role="img"
+          aria-label="Illustrative simulation of four EEG-like signal traces; these are not real recordings"
+        >
           {[0, 1, 2, 3].map(channel => (
             <g key={channel}>
               <text x="8" y={57 + channel * 74}>CH{channel + 1}</text>
@@ -420,7 +342,7 @@ function WorkflowStep({ step, progress, reducedMotion }) {
     const estimates = [['Stress', 68], ['Focus', 54], ['Calm', 42]]
     return (
       <div className="workflow__estimates">
-        <span className="workflow__pill">Unvalidated</span>
+        <span className="workflow__pill">Illustrative estimate</span>
         {estimates.map(([label, value]) => (
           <div className="workflow__estimate" key={label}>
             <span>{label}</span>
@@ -441,13 +363,13 @@ function WorkflowStep({ step, progress, reducedMotion }) {
         {SUMMARY_TEXT.slice(0, visibleLength)}
         {!reducedMotion && <span className="workflow__cursor" aria-hidden="true" />}
       </p>
-      <span className="workflow__pill">Example output · for therapist review · not a diagnosis</span>
+      <span className="workflow__pill">Example output · for therapist review</span>
     </div>
   )
 }
 
 function WorkflowWalkthrough() {
-  const [activeStep, setActiveStep] = useState(0)
+  const [activeStage, setActiveStage] = useState(0)
   const [animationProgress, setAnimationProgress] = useState(0)
   const [inViewport, setInViewport] = useState(false)
   const [tabVisible, setTabVisible] = useState(() => !document.hidden)
@@ -455,8 +377,6 @@ function WorkflowWalkthrough() {
   const [canPauseForInteraction, setCanPauseForInteraction] = useState(() => window.matchMedia('(hover: hover) and (pointer: fine)').matches)
   const [isHovered, setIsHovered] = useState(false)
   const [hasFocus, setHasFocus] = useState(false)
-  const [videoLoaded, setVideoLoaded] = useState(false)
-  const [videoFailed, setVideoFailed] = useState(false)
   const panelRef = useRef(null)
   const progressRef = useRef(0)
 
@@ -488,7 +408,7 @@ function WorkflowWalkthrough() {
   }, [])
 
   const pauseForInteraction = canPauseForInteraction && (isHovered || hasFocus)
-  const animationAllowed = inViewport && tabVisible && !reducedMotion && !pauseForInteraction && !videoLoaded
+  const animationAllowed = inViewport && tabVisible && !reducedMotion && !pauseForInteraction
 
   useEffect(() => {
     if (!animationAllowed) return undefined
@@ -509,7 +429,7 @@ function WorkflowWalkthrough() {
         if (animationAllowed) {
           progressRef.current = 0
           setAnimationProgress(0)
-          setActiveStep(current => (current + 1) % WORKFLOW_STEPS.length)
+          setActiveStage(current => (current + 1) % PIPELINE_STAGES.length)
         }
         return
       }
@@ -518,12 +438,12 @@ function WorkflowWalkthrough() {
 
     frame = window.requestAnimationFrame(animate)
     return () => window.cancelAnimationFrame(frame)
-  }, [activeStep, animationAllowed])
+  }, [activeStage, animationAllowed])
 
-  function selectStep(step) {
+  function selectStage(stage) {
     progressRef.current = 0
     setAnimationProgress(0)
-    setActiveStep(step)
+    setActiveStage(stage)
   }
 
   function handleBlur(event) {
@@ -547,95 +467,52 @@ function WorkflowWalkthrough() {
             id="workflow-panel"
             ref={panelRef}
             role="region"
-            aria-label={videoLoaded ? 'MindSync workflow demonstration video' : 'Interactive illustrative MindSync workflow simulation'}
+            aria-label="Interactive illustrative MindSync workflow simulation"
             aria-describedby="workflow-description"
           >
-            {!videoLoaded && (
-              <>
-                <span className="workflow__badge">Illustrative simulation. Not real recordings or patient data.</span>
-                <div
-                  className="workflow__stage"
-                  id="workflow-step-panel"
-                  role="tabpanel"
-                  aria-labelledby={`workflow-tab-${activeStep + 1}`}
-                >
-                  <WorkflowStep step={activeStep} progress={animationProgress} reducedMotion={reducedMotion} />
-                </div>
-              </>
-            )}
-            {CONFIG.demo.video && inViewport && !videoFailed && (
-              <video
-                className={`workflow__video ${videoLoaded ? 'workflow__video--ready' : ''}`}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={CONFIG.demo.poster}
-                width="1280"
-                height="720"
-                aria-label="MindSync workflow demonstration video"
-                onCanPlay={() => setVideoLoaded(true)}
-                onError={() => {
-                  setVideoFailed(true)
-                  setVideoLoaded(false)
-                }}
-                src={CONFIG.demo.video}
+            <span className="workflow__badge">Illustrative simulation. Not real recordings or patient data.</span>
+            <div
+              className="workflow__stage"
+              id="workflow-step-panel"
+            >
+              <WorkflowStep
+                step={PIPELINE_VISUAL_STEPS[activeStage]}
+                progress={animationProgress}
+                reducedMotion={reducedMotion}
               />
-            )}
+            </div>
           </div>
-          {!videoLoaded && (
-            <>
-              <div className="workflow__controls">
-                <div className="workflow__tabs" role="tablist" aria-label="Workflow steps">
-                  {WORKFLOW_STEPS.map((label, index) => (
-                    <button
-                      className="workflow__tab"
-                      id={`workflow-tab-${index + 1}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={activeStep === index}
-                      aria-controls="workflow-step-panel"
-                      tabIndex={activeStep === index ? 0 : -1}
-                      key={label}
-                      onClick={() => selectStep(index)}
-                      onKeyDown={event => {
-                        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-                          event.preventDefault()
-                          const direction = event.key === 'ArrowRight' ? 1 : -1
-                          const nextStep = (index + direction + WORKFLOW_STEPS.length) % WORKFLOW_STEPS.length
-                          selectStep(nextStep)
-                          document.getElementById(`workflow-tab-${nextStep + 1}`)?.focus()
-                        }
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="workflow__navigation">
-                  <button type="button" onClick={() => selectStep((activeStep + WORKFLOW_STEPS.length - 1) % WORKFLOW_STEPS.length)}>
-                    Previous step
-                  </button>
-                  <button type="button" onClick={() => selectStep((activeStep + 1) % WORKFLOW_STEPS.length)}>
-                    Next step
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
           <span className="visually-hidden" id="workflow-description">
-            {videoLoaded
-              ? 'Workflow demonstration video. The walkthrough uses simulated signals and is not clinical evidence.'
-              : 'Capture shows four simulated EEG traces with occasional signal artifacts. Process shows cleaned traces and illustrative delta, theta, alpha and beta band-power bars. Estimate shows unvalidated illustrative Stress, Focus and Calm meters. Summarize types “Elevated estimated cognitive load.” and labels it as an example output for therapist review, not a diagnosis.'}
+            The six pipeline controls select the matching workflow stage. Capture and signal processing show simulated EEG-like traces; classifiers reuse the processed-trace view with frequency-band bars; structured estimates show illustrative meters; the LLM summary and clinician review show example text. All visuals are illustrative, with no real EEG recordings or patient data.
           </span>
           <span className="visually-hidden" id="workflow-step-announcement" aria-live="polite" aria-atomic="true">
-            Step {activeStep + 1} of {WORKFLOW_STEPS.length}: {WORKFLOW_STEPS[activeStep]}
+            Stage {activeStage + 1} of {PIPELINE_STAGES.length}: {PIPELINE_STAGES[activeStage].title}
           </span>
           <figcaption className="demo__caption">
-            Walkthrough of the planned pipeline using simulated signals. See the roadmap for what is built and what is in development.
+            Illustrative simulation across the six workflow stages. Select a stage below to explore its representation.
           </figcaption>
         </figure>
+        <ol className="pipeline" aria-label="MindSync EEG-to-clinician review pipeline">
+          {PIPELINE_STAGES.map((stage, index) => (
+            <li className="pipeline__item" key={stage.title}>
+              <button
+                className="pipeline__stage"
+                id={`pipeline-control-${index}`}
+                type="button"
+                aria-pressed={activeStage === index}
+                aria-controls="workflow-step-panel"
+                onClick={() => selectStage(index)}
+              >
+                <span className="pipeline__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span className="pipeline__stage-title">{stage.title}</span>
+                <span className="pipeline__stage-detail">{stage.detail}</span>
+                <span className={`pipeline__tag pipeline__tag--${stage.status.toLowerCase().replaceAll(' ', '-')}`}>
+                  {stage.status}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   )
@@ -643,72 +520,34 @@ function WorkflowWalkthrough() {
 
 /* ─── ABOUT ─── */
 function About() {
-  return (
-    <section className="section about" id="about">
-      <div className="container">
-        <div className="about__layout">
-          <div className="about__left">
-            <SectionLabel align="left">ABOUT MINDSYNC</SectionLabel>
-            <h2 className="section__title">
-              Giving therapists a clearer, data-informed view between sessions.
-            </h2>
-            <div className="about__rule" />
-            <div className="about__content">
-              <p className="about__para">
-                MindSync is developing an EEG-based decision-support workflow that organizes brain-signal data for therapist review.
-              </p>
-              <p className="about__para">
-                The aim is to complement a clinician's expertise, not replace conversation, assessment, or professional judgment.
-              </p>
-            </div>
-          </div>
-          <div className="about__right">
-            <div className="about__image-wrap">
-              <div className="about__image-inner">
-                <OptionalImage
-                  src="/removebglogo.png"
-                  alt="MindSync brain logo"
-                  className="about__logo-icon"
-                  width="101"
-                  height="119"
-                />
-                <span className="about__logo-name">MindSync</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── PROBLEM ─── */
-function Problem() {
   const cards = [
     {
       n: '01',
-      t: 'A Complex Clinical Picture',
+      t: 'A complex clinical picture',
       d: 'Therapists combine patient-reported experiences, observation, and clinical expertise. MindSync is exploring whether EEG-derived signals can provide an additional perspective.',
     },
     {
       n: '02',
-      t: 'Signals Need Context',
+      t: 'Signals need context',
       d: 'Brain-signal measurements do not explain patient experience on their own. Any estimates need careful interpretation by a trained clinician.',
     },
     {
       n: '03',
-      t: 'Tools Should Support Care',
-      d: 'New technology should fit into a trusted therapeutic relationship and support clinician-led care—not make decisions or diagnoses for people.',
+      t: 'Tools should support care',
+      d: 'New technology should fit into a trusted therapeutic relationship and support clinician-led care.',
     },
   ]
 
   return (
-    <section className="section problem" id="problem">
+    <section className="section about" id="about">
       <div className="container">
-        <SectionLabel>THE PROBLEM</SectionLabel>
+        <SectionLabel>ABOUT MINDSYNC & THE PROBLEM</SectionLabel>
         <h2 className="section__title section__title--center">
-          Exploring another perspective on mental wellness
+          A clearer, data-informed view between sessions
         </h2>
+        <p className="about__intro">
+          MindSync is developing an EEG-based decision-support workflow that organizes brain-signal data for therapist review, aiming to complement—not replace—a clinician's conversation, assessment, and professional judgment.
+        </p>
         <div className="problem__grid">
           {cards.map(c => (
             <div key={c.n} className="problem__card">
@@ -719,77 +558,11 @@ function Problem() {
           ))}
         </div>
         <div className="solution">
-          <div className="solution__label">OUR SOLUTION</div>
+          <div className="solution__label">WHAT WE'RE EXPLORING</div>
           <p className="solution__text">
-            We are developing a wearable EEG and software workflow to turn
-            recorded signals into <span className="solution__emphasis">structured estimates</span> and <span className="solution__emphasis">therapist-readable summaries</span>. This is an early research effort: outputs are not
-            summaries. This is an early research effort: outputs are not
-            validated diagnoses and are intended for clinician review only.
+            We are exploring how wearable EEG and software could organize brain-signal data into structured estimates and therapist-readable summaries.
           </p>
         </div>
-      </div>
-    </section>
-  )
-}
-
-/* ─── HEADSET ─── */
-function Headset() {
-  const [prototypeImageFailed, setPrototypeImageFailed] = useState(false)
-
-  return (
-    <section className="section headset" id="headset">
-      <div className="container">
-        <div className="headset__container">
-          {!prototypeImageFailed && (
-            <figure className="headset__image-wrap">
-              {/* TODO: Replace this design render with a photo of the actual prototype. */}
-              <span className="design-render-badge">Design render</span>
-              <img
-                src="/assets/prototype-headband.webp"
-                alt="BioAmp EEG headband prototype design render"
-                className="headset__img"
-                width="1000"
-                height="697"
-                loading="lazy"
-                decoding="async"
-                onError={() => setPrototypeImageFailed(true)}
-              />
-              <figcaption className="headset__image-caption">BioAmp EEG headband: prototype design render.</figcaption>
-            </figure>
-          )}
-          <div className="headset__content">
-            <SectionLabel align="left">THE DEVICE</SectionLabel>
-            <h2 className="section__title">
-              From EEG signals<br />to therapist review
-            </h2>
-            <p>
-              The current proof of concept uses a 4-channel EEG setup. Signal processing and CNN/RNN classifiers are being explored to organize estimates such as stress, focus, and calm for therapist review.
-            </p>
-          </div>
-        </div>
-        <ol className="pipeline" aria-label="MindSync EEG-to-clinician review pipeline">
-          {PIPELINE_STAGES.map((stage, index) => (
-            <li className="pipeline__item" key={stage.title}>
-              <div className="pipeline__stage">
-                <h3>{stage.title}</h3>
-                <p>{stage.detail}</p>
-                {stage.inDevelopment && <span className="pipeline__tag">In development</span>}
-                {stage.workingPrototype && <span className="pipeline__tag pipeline__tag--working">R&amp;D prototype</span>}
-              </div>
-              {index < PIPELINE_STAGES.length - 1 && (
-                <svg
-                  className="pipeline__arrow"
-                  viewBox="0 0 24 24"
-                  role="img"
-                  aria-label={`Flow from ${stage.title} to ${PIPELINE_STAGES[index + 1].title}`}
-                >
-                  <path d="M3 12h17m-6-6 6 6-6 6" />
-                </svg>
-              )}
-            </li>
-          ))}
-        </ol>
-        <p className="headset__note">LLM summaries use structured estimates, not raw EEG.</p>
       </div>
     </section>
   )
@@ -800,18 +573,15 @@ function Pricing() {
   return (
     <section className="section pricing" id="pricing">
       <div className="container">
-        <SectionLabel>CLINICS FIRST</SectionLabel>
+        <SectionLabel>PROPOSED PILOT PRICING</SectionLabel>
         <h2 className="section__title section__title--center">
-          Proposed clinic pricing
+          Proposed pilot pricing
         </h2>
-        <p className="section__sub">
-          A clinic-led model, with the consumer version planned only after
-          clinical validation.
-        </p>
         <div className="pricing__grid">
           <article className="pricing-card pricing-card--featured">
-            <span className="pricing-card__eyebrow">YEAR 1 · CLINICAL PACKAGE</span>
-            <h3>MindSync Clinical Solution</h3>
+            <span className="pricing-card__eyebrow">PROPOSED CLINIC PACKAGE</span>
+            <span className="progress-status-pill progress-status-pill--planned">Planned</span>
+            <h3>MindSync clinical solution</h3>
             <p className="pricing-card__price">₹80,000 <span>one-time</span></p>
             <ul>
               <li>One MindSync EEG headset</li>
@@ -821,7 +591,8 @@ function Pricing() {
             </ul>
           </article>
           <article className="pricing-card">
-            <span className="pricing-card__eyebrow">YEAR 2+ · PLANNED RENEWAL</span>
+            <span className="pricing-card__eyebrow">PROPOSED RENEWAL</span>
+            <span className="progress-status-pill progress-status-pill--planned">Planned</span>
             <h3>Software subscription</h3>
             <p className="pricing-card__price">₹12,000 <span>per year</span></p>
             <ul>
@@ -831,16 +602,15 @@ function Pricing() {
             </ul>
           </article>
           <article className="pricing-card pricing-card--future">
-            <span className="pricing-card__eyebrow">FUTURE · AFTER VALIDATION</span>
-            <h3>Planned consumer version</h3>
+            <span className="pricing-card__eyebrow">FUTURE · NOT AVAILABLE</span>
+            <h3>Consumer version</h3>
             <p className="pricing-card__price">₹80,000 <span>headset</span></p>
-            <p className="pricing-card__detail">Plus a planned ₹1,000/month subscription.</p>
-            <p className="pricing-card__note">Not currently available. Planned only after clinical validation.</p>
+            <p className="pricing-card__detail">Plus a ₹1,000/month subscription.</p>
+            <p className="pricing-card__note">Subject to validation and applicable requirements.</p>
           </article>
         </div>
         <p className="pricing__note">
-          Pricing is proposed in the pitch deck and may change. The consumer
-          version is a future plan, not an available product.
+          Illustrative figures for a potential clinic pilot; all figures are proposed, subject to change, and not yet available. No product or pilot package is currently available.
         </p>
       </div>
     </section>
@@ -875,7 +645,7 @@ function Safety() {
             </p>
           </article>
           <article className="safety-card">
-            <span className="safety-card__eyebrow">Privacy · In development</span>
+            <span className="safety-card__eyebrow">PRIVACY · IN DEVELOPMENT</span>
             <h3>Consent and data protection</h3>
             <p>
               The deck describes a DPDP Act-aligned approach: explicit consent
@@ -946,9 +716,7 @@ function ProgressProof() {
             <div className="team__grid">
               {members.map(member => (
                 <article className="team-card" key={member.name}>
-                  <div className="team-card__media">
-                    <TeamAvatar member={member} />
-                  </div>
+                  <TeamAvatar member={member} />
                   <h4>{member.name}</h4>
                   <p>{member.role}</p>
                 </article>
@@ -1037,6 +805,7 @@ function PrototypeDiagram() {
           if (dialogOpen) setDialogOpen(false)
         }}
       >
+        <span className="design-render-badge">Design render</span>
         <button
           className="progress-image-dialog__close"
           type="button"
@@ -1126,7 +895,6 @@ function Contact() {
     const values = {
       name: String(formData.get('name') || ''),
       email: String(formData.get('email') || ''),
-      organisation: String(formData.get('organisation') || ''),
       role: String(formData.get('role') || ''),
       message: String(formData.get('message') || ''),
     }
@@ -1190,11 +958,7 @@ function Contact() {
               <input id="contact-email" name="email" type="email" autoComplete="email" required />
             </div>
             <div className="form-field">
-              <label htmlFor="contact-organisation">Organisation</label>
-              <input id="contact-organisation" name="organisation" autoComplete="organization" required />
-            </div>
-            <div className="form-field">
-              <label htmlFor="contact-role">I am a...</label>
+              <label htmlFor="contact-role">I am a</label>
               <select id="contact-role" name="role" required defaultValue="">
                 <option value="" disabled hidden>Select one</option>
                 <option>Clinician</option>
@@ -1225,26 +989,6 @@ function Contact() {
         </form>
       </div>
     </section>
-  )
-}
-
-function MobileContactBar() {
-  const [contactVisible, setContactVisible] = useState(false)
-
-  useEffect(() => {
-    const contact = document.getElementById('contact')
-    if (!contact) return undefined
-
-    const observer = new IntersectionObserver(([entry]) => setContactVisible(entry.isIntersecting))
-    observer.observe(contact)
-    return () => observer.disconnect()
-  }, [])
-
-  if (contactVisible) return null
-  return (
-    <div className="mobile-contact-bar">
-      <a href="#contact" onClick={() => trackEvent('contact_open')}>Talk to us</a>
-    </div>
   )
 }
 
@@ -1279,8 +1023,6 @@ export default function App() {
         <Hero />
         <WorkflowWalkthrough />
         <About />
-        <Problem />
-        <Headset />
         <ProgressProof />
         <Future />
         <Safety />
@@ -1288,7 +1030,6 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
-      <MobileContactBar />
     </div>
   )
 }
